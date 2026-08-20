@@ -48,3 +48,17 @@ comparison could not be constructed; they are not zero causal-effect estimates.
 
 Natural-state compatibility is observed rather than manipulated.  Report its
 conditional association separately from the controlled causal experiment.
+
+## Generated outputs
+
+Do not commit:
+
+- downloaded datasets;
+- prepared data caches;
+- `.pt`/`.ckpt` checkpoints;
+- `runs*` directories;
+- scheduler logs;
+- generated figures.
+
+Instead, publish a release/archive of the exact compact analysis tables required
+for the paper if journal policy requires direct numerical reproduction.
