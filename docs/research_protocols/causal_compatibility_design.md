@@ -30,27 +30,27 @@ A parent network first learns normally from the supervised stream.  At each decl
 4. The protected functional Jacobian `J_p` and current functional Jacobian `J_c` are measured over all trainable parameters.
 5. The protected feasible projector is
 
-$$
+```math
 P = I - J_p^\top\left(J_pJ_p^\top + \mathrm{ridge}\,I\right)^{-1}J_p.
-$$
+```
 
 6. For current teacher residual $r$, the unrestricted parameter gradient is
 
-$$
+```math
 q = J_c^\top r,
-$$
+```
 
 and measured compatibility is
 
-$$
+```math
 \kappa = \frac{\lVert Pq\rVert^2}{\lVert q\rVert^2}.
-$$
+```
 
 7. Rather than injecting an arbitrary parameter gradient, the code solves the generalized function-space eigenproblem
 
-$$
+```math
 J_c P J_c^\top r = \lambda J_c J_c^\top r.
-$$
+```
 
    Low- and high-compatibility residual eigenmodes are mixed to create teacher targets at nominal compatibility levels
 
@@ -66,13 +66,13 @@ This design makes compatibility an intervention, not a post-hoc correlation with
 
 For every compatibility target, the runner computes the genuine same-state unrestricted endpoint using the current teacher gradient.  A bounded backtracking line search only reduces the common initial step size if the unrestricted endpoint fails to decrease the teacher loss.
 
-$$
+```math
 \Delta_0
 =
 L_{\mathrm{before}}
 -
 L_{\mathrm{unrestricted,after}}.
-$$
+```
 
 The experiment matches the native teacher-gradient norm across the six compatibility interventions and then calibrates each genuine same-state no-protection comparator along that same native descent direction to a common finite $\Delta_0$ by bracketed step-length bisection.  The common target is set below the smallest already-positive unrestricted decrease at that causal state, so each compatibility level brackets the same finite progress target without redefining $\Delta_0$ as a linearized surrogate.  The experiment records the coefficient of variation of the calibrated $\Delta_0$ values as an explicit audit of the causal matching.
 
@@ -80,7 +80,7 @@ The experiment matches the native teacher-gradient norm across the six compatibi
 
 For every method, persistent progress is measured only in ordinary trainable model parameters:
 
-$$
+```math
 \rho_{\mathrm{persistent}}
 =
 \frac{
@@ -90,7 +90,7 @@ L_{\mathrm{method\ base,after}}
 }{
 \Delta_0
 }.
-$$
+```
 
 Protected behaviour is audited on the same protected full-logit evidence for every method.  Each point records maximum absolute protected-logit drift, RMS drift, and whether it passes the predeclared common retention tolerance.
 
@@ -190,11 +190,11 @@ The six compatibility interventions and seven method proposals are unchanged. Th
 
 For the broad cross-method claim, a single absolute protected-logit tolerance is no longer the primary retention control. At each matched state and compatibility level, let $D_0$ be the maximum absolute protected-logit drift caused by that compatibility level's genuine same-state unrestricted comparator. The common retention budgets are predeclared as
 
-$$
+```math
 D \le \max\!\left(10^{-8},\,\beta D_0\right),
 \qquad
 \beta \in \{0,\ .01,\ .05,\ .10,\ .25,\ .50,\ 1\}.
-$$
+```
 
 Each method first constructs its native one-step persistent proposal from the identical pre-update state. The proposal is then evaluated at 33 equally spaced scalar fractions in $[0,1]$ using actual finite network endpoints. For each $\beta$, the reported frontier point is the **largest proposal fraction on that predeclared grid** satisfying the common protected-logit budget. This is a method-neutral causal retention cap; it is not a method-specific tuning threshold.
 
@@ -214,20 +214,20 @@ The compatibility intervention must not change the retention allowance itself.
 For every matched causal state, first evaluate the six genuine unrestricted
 comparators and freeze
 
-$$
+```math
 D_{\mathrm{ref}}
 =
 \max_{\kappa} D_{\mathrm{unrestricted}}(\kappa).
-$$
+```
 
 The seven predeclared retention levels then use the same absolute budget for all
 six compatibility interventions and all seven methods:
 
-$$
+```math
 D \le \max\!\left(10^{-8},\,\beta D_{\mathrm{ref}}\right),
 \qquad
 \beta \in \{0,\ .01,\ .05,\ .10,\ .25,\ .50,\ 1\}.
-$$
+```
 
 The 33 actual finite endpoint evaluations for every proposal are saved, rather
 than only the selected frontier point. AFM's native persistent transaction and
