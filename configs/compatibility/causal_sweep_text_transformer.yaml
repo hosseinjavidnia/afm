@@ -1,0 +1,86 @@
+seed: 11
+compatibility_sweep:
+  schema: causal_compatibility_v1_5_common_budget_frontier
+  deterministic: true
+  dataset:
+    kind: char_text
+    modality: text
+    text_path: data_compatibility/text/input.txt
+    stride: 8
+  model:
+    architecture: char_transformer
+    context_length: 64
+    dim: 64
+    depth: 3
+    heads: 4
+    functional_dim: 16
+    projection_seed: 20260817
+  training:
+    batch_size: 64
+    parent_lr: 0.0007
+    weight_decay: 0.0001
+    pretrain_steps: 5000
+    stream_steps: 500
+    probe_interval: 1
+    causal_states: 50
+    probe_stream_steps: 5000
+    log_interval: 100
+    require_full_causal_states: true
+  causal:
+    requested_kappas:
+    - 0.0
+    - 0.1
+    - 0.25
+    - 0.5
+    - 0.75
+    - 1.0
+    methods:
+    - unrestricted
+    - replay
+    - projection
+    - linearized_distillation
+    - ewc_prox
+    - derpp
+    - afm
+    protected_count: 12
+    current_count: 12
+    near_protected_count: 6
+    guard_count: 12
+    reservoir_capacity: 1024
+    geometry_ridge: 1.0e-07
+    gradient_norm: 1.0
+    comparator_lr: 0.008
+    comparator_max_backtracks: 20
+    comparator_backtrack_factor: 0.5
+    maximum_comparator_cv: 0.15
+    minimum_achievable_span: 0.5
+    retention_tolerance: 0.005
+    replay_weight: 1.0
+    distillation_strength: 25.0
+    ewc_strength: 25.0
+    derpp_alpha: 0.5
+    derpp_beta: 0.5
+    afm_backtrack_factor: 0.5
+    afm_max_backtracks: 20
+    address_dim: 64
+    address_seed: 20260817
+    shield_support_multiplier: 4.0
+    shield_feature_match_tolerance: 1.0e-08
+    shield_target_tolerance: 1.0e-08
+    shield_residual_tolerance: 1.0e-08
+    comparator_match_fraction: 0.5
+    comparator_match_rtol: 0.002
+    comparator_match_bisections: 40
+    retention_budget_betas:
+    - 0.0
+    - 0.01
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.0
+    retention_numeric_epsilon: 1.0e-08
+    retention_frontier_grid_points: 33
+    retention_reference_rule: max_unrestricted_drift_across_kappa
+    retention_frontier_save_grid: true
+    afm_native_transaction_audit: true
