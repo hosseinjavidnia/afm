@@ -1,0 +1,177 @@
+seed: 7
+method: afm
+data:
+  train_manifest: data/prepared/train_stream.jsonl
+  evaluator_manifest: data/prepared/evaluator.jsonl
+  image_size: 64
+model:
+  num_classes: 2
+  feature_dim: 16
+  adapter_bottleneck: 4
+  adapter_slots: 3
+  initially_active_adapters: 1
+training:
+  device: auto
+  deterministic: true
+  batch_size: 4
+  num_workers: 0
+  max_steps: 8
+  log_interval: 1
+  bootstrap_batches: 2
+  bootstrap_lr: 0.001
+  baseline_lr: 0.001
+  weight_decay: 0.0
+afm:
+  run_requirements:
+    min_commits: 1
+    min_protected_nonzero_steps: 1
+  statistics:
+    total_delta: 0.2
+    category_weights:
+      consolidation: 0.25
+      candidate_staleness: 0.1
+      reopening: 0.2
+      route_split: 0.15
+      renewal: 0.1
+      policy: 0.1
+      numerics: 0.1
+  resources:
+    max_contexts: 2
+    max_atoms: 2
+    max_records: 2
+    evidence_reference_bytes: 4096
+    total_sketch_rows: 8
+    max_rank: 2
+    capacity_policy: release_oldest
+  router:
+    freeze_committed_centroids: true
+    split:
+      enabled: true
+      min_signature_blocks: 4
+      reference_floor: 0.05
+      reference_margin: 0.12
+      min_effect_distance: 0.2
+      signature_sigma: 0.5
+      signature_prior_scale: 1.0
+      max_wait_signature_blocks: 64
+    threshold: 0.5
+    centroid_rate: 0.1
+    signature:
+      kind: backbone
+      dimension: 16
+      temporal_rate: 1.0
+      calibrate_from_prefix: false
+  transfer:
+    enabled: true
+    samples: 1
+    max_activation_gap: 1.0
+    empirical_smoothness: 20.0
+    smoothness_certified: false
+    smoothness_bound: null
+    smoothness_provenance: null
+    endpoint_tolerance: 0.0001
+    min_progress_fraction: 0.25
+    scheduler: fair_round_robin
+    freeze_certificate_at_first_crossing: true
+    max_service_attempts: null
+    staleness_sigma: 0.5
+    staleness_prior_scale: 1.0
+    priority_tolerance: 1.0e-12
+    joint_solver_max_iterations: 1024
+    joint_solver_tolerance: 1.0e-08
+  functional_shield:
+    enabled: true
+    kind: compact_cardinal
+    guard_capacity: 8
+    support_multiplier: 4.0
+    feature_match_tolerance: 1.0e-08
+    duplicate_tolerance: 1.0e-10
+    target_tolerance: 1.0e-07
+    residual_tolerance: 1.0e-08
+    coefficient_norm_limit: 100000000.0
+    selected_contraction: 1.0
+    feature_distance_error_certified: false
+    feature_distance_error_bound: null
+    feature_distance_error_provenance: null
+  consolidation:
+    training_samples: 4
+    training_epochs: 2
+    training_batch_size: 4
+    training_lr: 0.001
+    training_weight_decay: 0.0
+    adam_beta1: 0.9
+    adam_beta2: 0.999
+    adam_epsilon: 1.0e-08
+    min_validation_samples: 4
+    max_validation_samples: 8
+    commit_samples: 1
+    risk_threshold: 1.0
+    start_successor_candidate: true
+  behaviour:
+    kind: probabilities
+    temperature: 1.0
+    output_scale: 1.0
+  memory:
+    sketch_rows: 2
+    declared_sketch_frobenius_sq: 1000.0
+  metaplastic:
+    timescales: 5
+    enforce_horizon_coverage: true
+    alphas:
+    - 0.5
+    - 1.0
+    ranks:
+    - 0
+    - 1
+    - 2
+    zeta: 10.0
+  certificates:
+    mode: empirical
+    certified: false
+    provenance: null
+    trust_radius_cap: null
+    loss_smoothness_bound: null
+    behaviour_curvature_bound: null
+    jacobian_lipschitz_bound: null
+    empirical_loss_smoothness: 20.0
+    empirical_behaviour_curvature: 20.0
+    empirical_jacobian_lipschitz: 0.0001
+  numerics:
+    certified: false
+    provenance: null
+    arithmetic_error_bound: 1.0e-06
+    bound_tolerance: 0.0001
+    endpoint_error_certified: false
+    endpoint_error_bound: null
+    endpoint_error_provenance: null
+  safe_update:
+    learning_rate: 0.01
+    trust_radius_cap: 0.02
+    budget_schedule: finite_uniform
+    total_budget: 0.2
+    budget_b0: 0.05
+    budget_exponent: 1.5
+    max_backtracks: 4
+    backtrack_factor: 0.5
+    check_tolerance: 0.0001
+    nonzero_step_tolerance: 1.0e-12
+    budget_mode: counterfactual_normalized
+    counterfactual_charge_fraction: 0.5
+  reopening:
+    sigma: 1.0
+    prior_scale: 1.0
+    hysteresis: 0.0
+    challenger_lr: 0.05
+  renewal:
+    enabled: true
+    loss_threshold: 0.0
+    stall_step_threshold: 0.0
+    stall_gradient_threshold: 0.0
+    useful_gradient_threshold: 1000000.0
+    patience: 2
+    zero_gate_tolerance: 1.0e-06
+  exact_counterfactual_restoration:
+    enabled: true
+    comparator: exact_afm_no_protection_endpoint
+    persistent_base: counterfactual_normalized_metaplastic_endpoint
+    no_nonzero_fallback: true

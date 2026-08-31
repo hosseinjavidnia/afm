@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "afm-functional-memory"
+version = "0.11.0"
+description = "Research implementation of AFM and causal functional-compatibility experiments"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Hossein Javidnia"}
+]
+keywords = [
+  "continual learning",
+  "functional compatibility",
+  "retention",
+  "pytorch",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy>=1.24",
+  "Pillow>=9.5",
+  "PyYAML>=6.0",
+  "torch>=2.2,<3",
+  "torchvision>=0.17,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+figures = ["matplotlib>=3.7", "pandas>=2.0"]
+experiments = ["scipy>=1.10", "datasets>=2.18"]
+all = [
+  "pytest>=8",
+  "matplotlib>=3.7",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "datasets>=2.18",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["afmvision*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
