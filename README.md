@@ -152,6 +152,14 @@ From the same parent state it manipulates realized functional compatibility,
 matches the genuine finite unrestricted learning opportunity, and evaluates a
 common nonlinear retention frontier.
 
+For this experiment, the ridge-compatible operator is
+`R_γ = I - J_p^T (J_p J_p^T + γI)^{-1} J_p`. The generalized residual modes
+are constructed from `J_c R_γ J_c^T` relative to `J_c J_c^T`. With nonzero
+ridge, the resulting mode eigenvalue corresponds to
+`q^T R_γ q / ||q||^2`, whereas realized compatibility is recomputed from the
+native-precision gradient as `κ = ||R_γ q||^2 / ||q||^2`. The causal analyses
+use the latter measured realized `κ`.
+
 Prepare CIFAR-10:
 
 ```bash
@@ -299,6 +307,11 @@ tests/                curated public CPU test suite
 Keep the following distinctions explicit when interpreting outputs:
 
 - **Requested κ vs realized κ:** causal analyses use realized compatibility.
+- **Construction coordinate vs realized κ:** with nonzero geometry ridge, the
+  generalized mode eigenvalue uses `q^T R_γ q / ||q||^2`, while realized
+  compatibility uses `||R_γ q||^2 / ||q||^2`; the native-gradient realized
+  value is recomputed after target construction and is used in the causal
+  analysis.
 - **Persistent base vs finite completion:** finite endpoint restoration is not
   relabeled as persistent parameter learning.
 - **Matched-Δ0 experiment vs fixed-norm bridge:** these answer different causal

@@ -33,11 +33,23 @@ causal state:
    without making current and protected finite addresses identical.
 4. The protected and current functional Jacobians, `J_p` and `J_c`, are measured
    over all trainable parameters.
-5. The protected feasible projector is
+5. The causal compatibility experiment uses the ridge-compatible operator
 
 ```math
-P = I - J_p^\top\left(J_pJ_p^\top + \mathrm{ridge}\,I\right)^{-1}J_p.
+R_\gamma
+=
+I
+-
+J_p^\top
+\left(
+J_pJ_p^\top+\gamma I
+\right)^{-1}
+J_p,
 ```
+
+where `γ` is the configured geometry ridge. With nonzero ridge,
+`R_γ` is a symmetric ridge-compatible operator rather than an exact
+orthogonal projector.
 
 6. For current teacher residual `r`, the unrestricted parameter gradient is
 
@@ -48,27 +60,57 @@ q = J_c^\top r,
 and realized functional compatibility is
 
 ```math
-\kappa = \frac{\lVert Pq\rVert^2}{\lVert q\rVert^2}.
+\kappa
+=
+\frac{\lVert R_\gamma q\rVert^2}{\lVert q\rVert^2}
+=
+\frac{q^\top R_\gamma^2 q}{q^\top q}.
 ```
 
 7. The intervention is constructed in function space from the generalized
    eigenproblem
 
 ```math
-J_c P J_c^\top r = \lambda J_c J_c^\top r.
+J_c R_\gamma J_c^\top r
+=
+\lambda J_cJ_c^\top r.
 ```
 
-   Low- and high-compatibility residual modes are mixed to target nominal levels
-   `{0, 0.1, 0.25, 0.5, 0.75, 1.0}`. The native parameter-gradient norm is
-   matched across the six interventions. Analysis uses the measured realized
-   κ. If a local geometry cannot realize a requested endpoint, the achieved
-   value and clipping status are recorded.
-8. Every method is evaluated from the identical pre-update model state and the
-   same teacher target. Causal branches are observational experiments and are
-   not committed to the parent trajectory.
+For `q = J_c^T r`, the corresponding generalized eigenvalue is the
+ridge construction coordinate
 
-Exactly 50 accepted causal states are required for each system/seed run. A run
-with fewer than 50 accepted states is incomplete.
+```math
+\lambda
+=
+\frac{q^\top R_\gamma q}{q^\top q}.
+```
+
+With nonzero ridge, this construction coordinate is not algebraically
+identical to the realized squared-norm compatibility κ. Low- and
+high-construction-coordinate residual modes are mixed to target the nominal
+levels `{0, 0.1, 0.25, 0.5, 0.75, 1.0}`. The native parameter-gradient norm is
+matched across the six interventions. After the teacher target is constructed,
+the native-precision parameter gradient is recomputed and realized κ is
+measured from that gradient. The causal analysis uses this measured realized
+κ, not the generalized eigenvalue. If a nominal target lies outside the
+available construction-mode span, the target is clipped and that status is
+recorded.
+
+8. Every method is evaluated from the identical pre-update model state and the
+   same teacher target. The causal branches are counterfactual intervention
+   evaluations from that common parent state and are not committed to the parent
+   trajectory.
+
+A candidate causal state is admitted only if the constructed mode span meets
+the prespecified minimum compatibility-span criterion, every requested level
+admits a genuine positive same-state unrestricted comparator, calibration to
+the common finite `\Delta_0` target succeeds for every level, and the resulting
+matched comparators satisfy the prespecified matching criterion. Candidate
+states that fail any of these checks are recorded as skips and do not enter the
+causal analysis.
+
+Exactly 50 admitted causal states are required for each system/seed run. A run
+with fewer than 50 admitted states is incomplete.
 
 ## Genuine unrestricted comparator and matched finite opportunity
 

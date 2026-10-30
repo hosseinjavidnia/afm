@@ -131,12 +131,17 @@ def _solve_protected_gram(
 
 
 def protected_projection(vector: torch.Tensor, geometry: ProtectedGeometry) -> torch.Tensor:
-    """Project a parameter vector into the declared protected row-space operator.
+    """Apply the ridge-regularized protected row-space operator to a parameter vector.
 
-    The linear solve is carried out in float64 even when the network itself is
-    float32.  This preserves the predeclared ridge term and prevents redundant
-    protected functional constraints from creating a false singular-matrix
-    failure.  The projected vector is returned in the caller's native dtype.
+    The returned vector is
+
+        J_p^T (J_p J_p^T + gamma I)^(-1) J_p v.
+
+    For nonzero ridge this operator is not generally an idempotent orthogonal
+    projector.  The linear solve is carried out in float64 even when the network
+    itself is float32.  This preserves the predeclared ridge term and prevents
+    redundant protected functional constraints from creating a false
+    singular-matrix failure.  The result is returned in the caller's native dtype.
     """
 
     J64 = geometry.jacobian.to(device=vector.device, dtype=torch.float64)
@@ -167,14 +172,25 @@ def _generalised_modes(
     *,
     eig_tolerance: float = 1e-10,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Return G-orthonormal residual modes and their compatibility eigenvalues.
+    """Return G-orthonormal residual modes and ridge construction eigenvalues.
 
-    For a current residual r, q=J_c^T r.  The ratio
-    ||P q||^2 / ||q||^2 is a generalised Rayleigh quotient.  The returned
-    residual modes diagonalise that quotient inside the current functional
-    gradient subspace, allowing exact causal interpolation between low- and
-    high-compatibility directions without injecting an arbitrary parameter
-    gradient.
+    For a current residual r, let q = J_c^T r and
+
+        R_gamma = I - J_p^T (J_p J_p^T + gamma I)^(-1) J_p.
+
+    The generalized eigenproblem diagonalizes the construction quotient
+
+        q^T R_gamma q / (q^T q)
+
+    inside the current functional-gradient subspace.  With nonzero ridge this
+    quantity is not algebraically identical to the realized squared-norm
+    compatibility
+
+        ||R_gamma q||^2 / ||q||^2
+        = q^T R_gamma^2 q / (q^T q).
+
+    Realized compatibility is recomputed from the native-precision gradient
+    after target construction and is the quantity used by the causal analysis.
     """
 
     Jc = current_jacobian.to(dtype=torch.float64)
@@ -238,12 +254,16 @@ def make_controlled_targets(
 ) -> list[CompatibilityTarget]:
     """Construct teacher targets that causally intervene on compatibility.
 
-    The intervention is performed in function space.  Generalised residual
-    eigenmodes of the current functional Jacobian are mixed so that the
-    resulting teacher loss gradient has the requested compatibility whenever
-    that value lies inside the achievable range.  Gradient norm is matched
-    across requested levels.  The measured compatibility is always recomputed
-    from the realised gradient and is the quantity intended for the x-axis.
+    The intervention is performed in function space.  Generalized residual
+    eigenmodes of the current functional Jacobian are mixed according to the
+    ridge construction coordinate to span the requested nominal compatibility
+    levels.  With nonzero ridge, the construction coordinate is not algebraically
+    identical to the squared-norm compatibility measure.
+
+    Gradient norm is matched across requested levels.  The native-precision
+    gradient is then recomputed, and realized compatibility is measured from that
+    gradient.  This measured realized compatibility is the quantity used for the
+    causal-analysis x-axis.
     """
 
     lambdas, modes = _generalised_modes(current_jacobian, geometry)
